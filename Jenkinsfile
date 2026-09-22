@@ -24,7 +24,8 @@ pipeline {
         stage('Login ECR') {
             steps {
                 sh '''
-                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 225201316516.dkr.ecr.us-east-1.amazonaws.com
+                aws ecr get-login-password --region us-east-1 \
+                | docker login --username AWS --password-stdin 225201316516.dkr.ecr.us-east-1.amazonaws.com
                 '''
             }
         }
@@ -41,28 +42,15 @@ pipeline {
             }
         }
 
-       
-
-        stage('Deploy') {
-    steps {
-        sh '''
-        docker stop my-app || true
-        docker rm my-app || true
-        docker pull $ECR_REPO:$IMAGE_TAG
-        docker run -d -p 80:80 --name my-app $ECR_REPO:$IMAGE_TAG
-        '''
+        stage('Deploy to EKS') {
+            steps {
+                sh '''
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                '''
+            }
+        }
     }
-}
-    }
-
-    stage('Deploy to EKS') {
-    steps {
-        sh '''
-        kubectl apply -f deployment.yaml
-        kubectl apply -f service.yaml
-        '''
-    }
-}
 
     post {
         always {
