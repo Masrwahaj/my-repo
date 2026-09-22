@@ -52,6 +52,16 @@ pipeline {
         }
     }
 
+    stage('Configure kubeconfig') {
+    steps {
+        sh '''
+        aws eks update-kubeconfig \
+        --region us-east-1 \
+        --name devops-cluster
+        '''
+    }
+}
+
     post {
         always {
             sh '''
