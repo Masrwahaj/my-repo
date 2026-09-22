@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = "us-east-1"
-        ECR_REPO = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-app"
+        ECR_REPO = "225201316516.dkr.ecr.us-east-1.amazonaws.com/my-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
@@ -24,7 +24,7 @@ pipeline {
         stage('Login ECR') {
             steps {
                 sh '''
-                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 225201316516.dkr.ecr.us-east-1.amazonaws.com
                 '''
             }
         }
