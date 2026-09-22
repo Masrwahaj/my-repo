@@ -2,53 +2,32 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'   // change if needed
-        ACCOUNT_ID = '225201316516'
-        ECR_REPO = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-app"
+        IMAGE_NAME = "my-app"
     }
 
     stages {
-
         stage('Clone') {
             steps {
                 git branch: 'main', url: 'https://github.com/Masrwahaj/my-repo.git'
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-app .'
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
-        stage('Login to ECR') {
+        stage('Stop Old Container') {
             steps {
-                sh '''
-                aws ecr get-login-password --region $AWS_REGION \
-                | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-                '''
+                sh 'docker stop my-app || true'
+                sh 'docker rm my-app || true'
             }
         }
 
-        stage('Tag Image') {
+        stage('Run Container') {
             steps {
-                sh 'docker tag my-app:latest $ECR_REPO:latest'
-            }
-        }
-
-        stage('Push to ECR') {
-            steps {
-                sh 'docker push $ECR_REPO:latest'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                docker stop my-app || true
-                docker rm my-app || true
-                docker run -d -p 80:80 --name my-app my-app
-                '''
+                sh 'docker run -d -p 80:80 --name my-app $IMAGE_NAME'
             }
         }
     }
