@@ -61,9 +61,12 @@ pipeline {
         '''
     }
 }
-        post {
-    success {
-        sh 'docker image prune -f'
+      post {
+    always {
+        sh '''
+        docker container prune -f
+        docker image prune -f
+        '''
     }
 }
         
