@@ -52,5 +52,20 @@ pipeline {
                 '''
             }
         }
+
+        stage('Health Check') {
+    steps {
+        sh '''
+        sleep 5
+        curl -f http://localhost || exit 1
+        '''
+    }
+}
+        post {
+    success {
+        sh 'docker image prune -f'
+    }
+}
+        
     }
 }
